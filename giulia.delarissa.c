@@ -7,6 +7,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef enum {
@@ -40,11 +41,12 @@ typedef struct {
 
 
 int valor_carta(char valor) {
+    if (v >= '2' && v <= '9') return v - '0';
     if (valor == 'J') return 11;
     if (valor == 'Q') return 12;
     if (valor == 'K') return 13;
     if (valor == 'A') return 14;
-    return valor - '0';
+    return -1; // caso valor seja invalido
 }
 
 
