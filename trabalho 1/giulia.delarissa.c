@@ -39,14 +39,14 @@ typedef struct {
     t_valor_m valor;
 } t_mao;
 
-int valor_carta(char *v) {
-    if (v >= '2' && v <= '9') return v - '0';
-    if (strcmp(v, "10") == 0) return 10;
-    if (v == 'J') return 11;
-    if (v == 'Q') return 12;
-    if (v == 'K') return 13;
-    if (v == 'A') return 14;
-    return -1; // valor inválido
+int valor_carta(char a, char b) {
+    if (a >= '2' && a <= '9') return a - '0';
+    if (a == '1' && b == '0') return 10;
+    if (a == 'J') return 11;
+    if (a == 'Q') return 12;
+    if (a == 'K') return 13;
+    if (a == 'A') return 14;
+    return -1; // valor invalido
 }
 
 int compara_cartas(const void *a, const void *b) {
@@ -62,7 +62,7 @@ void ler_mao(t_mao *mao) {
     char valor[3], naipe;
     for (int i = 0; i < 5; i++) {
         scanf("%s %c", valor, &naipe);
-        mao->cartas[i].valor = valor_carta(valor);
+        mao->cartas[i].valor = valor_carta(valor[0], valor[1]);
         mao->cartas[i].naipe = naipe;
     }
 }
@@ -87,7 +87,7 @@ t_valor_m classificar_mao(t_mao *mao) {
         if (frequencia[i] == 4) quadra++;
     }
 
-    int sequencia = 1; // Assume que é uma sequência
+    int sequencia = 1; // Assume que eh sequencia
     for (int i = 0; i < 4; i++) {
         if (mao->cartas[i + 1].valor != mao->cartas[i].valor + 1) {
             sequencia = 0;
@@ -95,7 +95,7 @@ t_valor_m classificar_mao(t_mao *mao) {
         }
     }
 
-    int flush = 1; // Assume que é um flush
+    int flush = 1; // Assume que eh flush
     for (int i = 1; i < 5; i++) {
         if (mao->cartas[i].naipe != mao->cartas[0].naipe) {
             flush = 0;
@@ -103,7 +103,7 @@ t_valor_m classificar_mao(t_mao *mao) {
         }
     }
 
-    // Avaliação das mãos
+    // Avalia as maos na ordem de prioridade
     if (flush && sequencia && mao->cartas[0].valor == 14)
         return RFLUSH;
     if (flush && sequencia)
@@ -123,7 +123,7 @@ t_valor_m classificar_mao(t_mao *mao) {
     if (pares == 1)
         return PAR;
 
-    return maior_valor; // Retorna o maior valor se nenhuma outra combinação
+    return maior_valor; // Retorna o maior valor se nenhuma outra combinacao
 }
 
 int comparar_maos(t_mao *mao1, t_mao *mao2) {
@@ -135,17 +135,25 @@ int comparar_maos(t_mao *mao1, t_mao *mao2) {
 }
 
 char retorna_letras(int valor) {
-    if (valor >= 2 && valor <= 9) return valor + '0';
-    if (valor == 11) return 'J';
-    if (valor == 12) return 'Q';
-    if (valor == 13) return 'K';
-    if (valor == 14) return 'A';
+    if (valor >= 2 && valor <= 9)
+        return valor + '0';
+    if (valor == 10)
+        return '10';
+    if (valor == 11)
+        return 'J';
+    if (valor == 12)
+        return 'Q';
+    if (valor == 13)
+        return 'K';
+    if (valor == 14)
+        return 'A';
+
     return '?';
 }
-void imprimir_mao(t_carta cartas[5]) {
-    for (int j = 0; j < 5; j++) {
-        printf("%c %c", retorna_letras(cartas[j].valor), cartas[j].naipe);
-        if (j < 4)
+void imprimir_mao(t_carta cartas[5]){
+    for (int i = 0; i < 5; i++){
+        printf("%c %c", retorna_letras(cartas[i].valor), cartas[i].naipe);
+        if (i < 4)
             printf(" ");
     }
     printf("\n");
@@ -161,7 +169,6 @@ int main() {
         // Ler as mãos das duas capivaras
         ler_mao(&mao1);
         ler_mao(&mao2);
-        printf("Mao 1: %d, Mao 2: %d\n", mao1.valor, mao2.valor); // Debug
 
         // Classificar as mãos
         mao1.valor = classificar_mao(&mao1);
