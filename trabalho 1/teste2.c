@@ -39,9 +39,8 @@ typedef struct {
     t_valor_m valor;
 } t_mao;
 
-int valor_carta(char *v) {
+int valor_carta(char v) {
     if (v >= '2' && v <= '9') return v - '0';
-    if (strcmp(v, "10") == 0) return 10;
     if (v == 'J') return 11;
     if (v == 'Q') return 12;
     if (v == 'K') return 13;
@@ -62,7 +61,7 @@ void ler_mao(t_mao *mao) {
     char valor[3], naipe;
     for (int i = 0; i < 5; i++) {
         scanf("%s %c", valor, &naipe);
-        mao->cartas[i].valor = valor_carta(valor);
+        mao->cartas[i].valor = valor_carta(valor[0]);
         mao->cartas[i].naipe = naipe;
     }
 }
@@ -161,7 +160,6 @@ int main() {
         // Ler as mãos das duas capivaras
         ler_mao(&mao1);
         ler_mao(&mao2);
-        printf("Mao 1: %d, Mao 2: %d\n", mao1.valor, mao2.valor); // Debug
 
         // Classificar as mãos
         mao1.valor = classificar_mao(&mao1);

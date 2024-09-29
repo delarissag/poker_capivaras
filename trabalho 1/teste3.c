@@ -1,11 +1,3 @@
-/**************************************************
-*
-* Giulia Delarissa
-* Trabalho 1
-* Professor(a): Diego Rupert
-*
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,9 +31,9 @@ typedef struct {
     t_valor_m valor;
 } t_mao;
 
-int valor_carta(char *v) {
+int valor_carta(char v) {
     if (v >= '2' && v <= '9') return v - '0';
-    if (strcmp(v, "10") == 0) return 10;
+    if (v == 'T') return 10;
     if (v == 'J') return 11;
     if (v == 'Q') return 12;
     if (v == 'K') return 13;
@@ -53,16 +45,16 @@ int compara_cartas(const void *a, const void *b) {
     t_carta *carta1 = (t_carta *)a;
     t_carta *carta2 = (t_carta *)b;
     if (carta1->valor != carta2->valor) {
-        return carta1->valor - carta2->valor;
+        return carta1->valor - carta2->valor; // Ordem crescente de valor
     }
-    return carta1->naipe - carta2->naipe;
+    return carta1->naipe - carta2->naipe; // Se valor for igual, ordenar pelo naipe
 }
 
 void ler_mao(t_mao *mao) {
     char valor[3], naipe;
     for (int i = 0; i < 5; i++) {
         scanf("%s %c", valor, &naipe);
-        mao->cartas[i].valor = valor_carta(valor);
+        mao->cartas[i].valor = valor_carta(valor[0]);
         mao->cartas[i].naipe = naipe;
     }
 }
@@ -70,16 +62,12 @@ void ler_mao(t_mao *mao) {
 t_valor_m classificar_mao(t_mao *mao) {
     qsort(mao->cartas, 5, sizeof(t_carta), compara_cartas);
 
-    int frequencia[15] = {0};
-    int maior_valor = 0;
-
+    int frequencia[15] = {0}; // Para contar as frequências das cartas
     for (int i = 0; i < 5; i++) {
         frequencia[mao->cartas[i].valor]++;
-        if (mao->cartas[i].valor > maior_valor) {
-            maior_valor = mao->cartas[i].valor;
-        }
     }
 
+    // Verificar pares, trincas, quadras
     int pares = 0, trinca = 0, quadra = 0;
     for (int i = 2; i <= 14; i++) {
         if (frequencia[i] == 2) pares++;
@@ -87,6 +75,7 @@ t_valor_m classificar_mao(t_mao *mao) {
         if (frequencia[i] == 4) quadra++;
     }
 
+    // Verificar sequência
     int sequencia = 1; // Assume que é uma sequência
     for (int i = 0; i < 4; i++) {
         if (mao->cartas[i + 1].valor != mao->cartas[i].valor + 1) {
@@ -95,6 +84,7 @@ t_valor_m classificar_mao(t_mao *mao) {
         }
     }
 
+    // Verificar flush
     int flush = 1; // Assume que é um flush
     for (int i = 1; i < 5; i++) {
         if (mao->cartas[i].naipe != mao->cartas[0].naipe) {
@@ -104,47 +94,31 @@ t_valor_m classificar_mao(t_mao *mao) {
     }
 
     // Avaliação das mãos
-    if (flush && sequencia && mao->cartas[0].valor == 14)
-        return RFLUSH;
-    if (flush && sequencia)
-        return SFLUSH;
-    if (quadra)
-        return QUADRA;
-    if (trinca && pares == 1)
-        return FULL;
-    if (flush)
-        return FLUSH;
-    if (sequencia)
-        return SEQUENCIA;
-    if (trinca)
-        return TRINCA;
-    if (pares == 2)
-        return DOISPARES;
-    if (pares == 1)
-        return PAR;
+    if (flush && sequencia && mao->cartas[4].valor == 14) return RFLUSH; // Royal Flush
+    if (flush && sequencia) return SFLUSH; // Straight Flush
+    if (quadra) return QUADRA; // Quadra
+    if (trinca && pares == 1) return FULL; // Full House
+    if (flush) return FLUSH; // Flush
+    if (sequencia) return SEQUENCIA; // Sequência
+    if (trinca) return TRINCA; // Trinca
+    if (pares == 2) return DOISPARES; // Dois Pares
+    if (pares == 1) return PAR; // Par
 
-    return maior_valor; // Retorna o maior valor se nenhuma outra combinação
+    return mao->cartas[4].valor; // Retorna o maior valor se nenhuma outra combinação
 }
 
 int comparar_maos(t_mao *mao1, t_mao *mao2) {
-
     if (mao1->valor > mao2->valor) return 1;
     if (mao1->valor < mao2->valor) return 2;
 
-    return 0;
+    // Se os valores forem iguais, comparamos a maior carta
+    return mao1->cartas[4].valor > mao2->cartas[4].valor ? 1 :
+           (mao1->cartas[4].valor < mao2->cartas[4].valor ? 2 : 0);
 }
 
-char retorna_letras(int valor) {
-    if (valor >= 2 && valor <= 9) return valor + '0';
-    if (valor == 11) return 'J';
-    if (valor == 12) return 'Q';
-    if (valor == 13) return 'K';
-    if (valor == 14) return 'A';
-    return '?';
-}
 void imprimir_mao(t_carta cartas[5]) {
     for (int j = 0; j < 5; j++) {
-        printf("%c %c", retorna_letras(cartas[j].valor), cartas[j].naipe);
+        printf("%d %c", cartas[j].valor, cartas[j].naipe);
         if (j < 4)
             printf(" ");
     }
@@ -161,7 +135,6 @@ int main() {
         // Ler as mãos das duas capivaras
         ler_mao(&mao1);
         ler_mao(&mao2);
-        printf("Mao 1: %d, Mao 2: %d\n", mao1.valor, mao2.valor); // Debug
 
         // Classificar as mãos
         mao1.valor = classificar_mao(&mao1);
