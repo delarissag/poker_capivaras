@@ -166,15 +166,15 @@ int main() {
     for (int i = 0; i < k; i++) {
         t_mao mao1, mao2;
 
-        // Ler as mãos das duas capivaras
+        // Ler as maos das duas capivaras
         ler_mao(&mao1);
         ler_mao(&mao2);
 
-        // Classificar as mãos
+        // Classificar as maos
         mao1.valor = classificar_mao(&mao1);
         mao2.valor = classificar_mao(&mao2);
 
-        // Comparar as mãos
+        // Comparar as maos
         int resultado = comparar_maos(&mao1, &mao2);
 
         // Exibir o resultado
